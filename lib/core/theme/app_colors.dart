@@ -23,4 +23,14 @@ class AppColors {
   static const Color success = Color(0xFF10B981); // Green
   static const Color warning = Color(0xFFF59E0B); // Amber
   static const Color error = Color(0xFFEF4444); // Red
+
+  // Category colors
+  static const Map<String, Color> categoryColors = {
+    'Hackathons': Color(0xFF8B5CF6),
+    'Leadership Programs': Color(0xFF0F4C81),
+    'Startup Events': Color(0xFF059669),
+    'Workshops': Color(0xFFD97706),
+    'Community Activities': Color(0xFFDB2777),
+    'Internship Opportunities': Color(0xFF0891B2),
+  };
 }

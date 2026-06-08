@@ -76,13 +76,13 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: user.role.toLowerCase() == 'student'
-                    ? AppColors.primary.withOpacity(0.1)
-                    : AppColors.secondary.withOpacity(0.1),
+                    ? AppColors.primary.withValues(alpha: 0.1)
+                    : AppColors.secondary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: user.role.toLowerCase() == 'student'
-                      ? AppColors.primary.withOpacity(0.3)
-                      : AppColors.secondary.withOpacity(0.3),
+                      ? AppColors.primary.withValues(alpha: 0.3)
+                      : AppColors.secondary.withValues(alpha: 0.3),
                 ),
               ),
               child: Text(
