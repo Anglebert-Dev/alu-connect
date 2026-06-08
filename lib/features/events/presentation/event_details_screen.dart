@@ -7,6 +7,8 @@ import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../providers/app_provider.dart';
+import '../../../providers/auth_provider.dart';
+import '../../discussion/presentation/chat_screen.dart';
 import '../models/event_model.dart';
 
 class EventDetailsScreen extends StatelessWidget {
@@ -17,8 +19,9 @@ class EventDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
-    final isJoined = appProvider.joinedEventIds.contains(event.id);
-    final isSaved = appProvider.bookmarkedEventIds.contains(event.id);
+    final userId = context.watch<AuthProvider>().currentUser?.id ?? '';
+    final isJoined = appProvider.joinedEventIdsForUser(userId).contains(event.id);
+    final isSaved = appProvider.bookmarkedEventIdsForUser(userId).contains(event.id);
     final categoryColor = AppColors.categoryColors[event.category] ?? AppColors.primary;
     final formattedDate = DateFormat('EEEE, MMMM d, y • h:mm a').format(event.date);
 
@@ -33,7 +36,7 @@ class EventDetailsScreen extends StatelessWidget {
               color: isSaved ? AppColors.primary : AppColors.textSecondary,
             ),
             onPressed: () {
-              context.read<AppProvider>().toggleBookmark(event.id);
+              context.read<AppProvider>().toggleBookmark(event.id, userId);
               AppToast.show(
                 context,
                 message: isSaved ? 'Removed from saved events' : 'Event saved successfully',
@@ -116,14 +119,14 @@ class EventDetailsScreen extends StatelessWidget {
                     isPrimary: !isJoined,
                     onPressed: () {
                       if (isJoined) {
-                        context.read<AppProvider>().leaveEvent(event.id);
+                        context.read<AppProvider>().leaveEvent(event.id, userId);
                         AppToast.show(
                           context,
                           message: 'You have left this event',
                           type: ToastType.success,
                         );
                       } else {
-                        context.read<AppProvider>().joinEvent(event.id);
+                        context.read<AppProvider>().joinEvent(event.id, userId);
                         AppToast.show(
                           context,
                           message: 'Successfully joined event!',
@@ -139,6 +142,24 @@ class EventDetailsScreen extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: isJoined
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatScreen(event: event),
+                  ),
+                );
+              },
+              backgroundColor: AppColors.primary,
+              icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+              label: const Text(
+                'Live Chat',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            )
+          : null,
     );
   }
 

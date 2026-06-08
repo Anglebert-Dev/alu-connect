@@ -104,7 +104,7 @@ class ProfileScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     title: 'Joined Events',
-                    value: appProvider.joinedEventIds.length.toString(),
+                    value: appProvider.joinedEventIdsForUser(user.id).length.toString(),
                     icon: Icons.event_available,
                   ),
                 ),
@@ -113,7 +113,7 @@ class ProfileScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     title: 'Saved',
-                    value: appProvider.bookmarkedEventIds.length.toString(),
+                    value: appProvider.bookmarkedEventIdsForUser(user.id).length.toString(),
                     icon: Icons.bookmark,
                   ),
                 ),

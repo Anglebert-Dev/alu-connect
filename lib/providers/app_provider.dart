@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../features/discussion/models/message_model.dart';
 import '../features/events/models/event_model.dart';
 
 class AppProvider with ChangeNotifier {
@@ -38,13 +39,37 @@ class AppProvider with ChangeNotifier {
     ),
   ];
   
-  final List<String> _joinedEventIds = [];
-  final List<String> _bookmarkedEventIds = [];
-  final Map<String, List<dynamic>> _comments = {}; 
+  // Scoped per userId so each account has its own RSVP and saved state.
+  final Map<String, List<String>> _joinedEventIdsByUser = {};
+  final Map<String, List<String>> _bookmarkedEventIdsByUser = {};
+  final Map<String, List<MessageModel>> _chatMessages = {
+    'event_1': [
+      MessageModel(
+        id: 'msg_1',
+        eventId: 'event_1',
+        userId: 'user_2',
+        userName: 'Alex Johnson',
+        text: 'Is anyone looking for a team member?',
+        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+      ),
+      MessageModel(
+        id: 'msg_2',
+        eventId: 'event_1',
+        userId: 'user_3',
+        userName: 'Samantha Lee',
+        text: 'Yes! We need a frontend developer.',
+        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+    ]
+  };
 
   List<EventModel> get opportunities => _opportunities;
-  List<String> get joinedEventIds => _joinedEventIds;
-  List<String> get bookmarkedEventIds => _bookmarkedEventIds;
+
+  List<String> joinedEventIdsForUser(String userId) =>
+      _joinedEventIdsByUser[userId] ?? [];
+
+  List<String> bookmarkedEventIdsForUser(String userId) =>
+      _bookmarkedEventIdsByUser[userId] ?? [];
   
   String get searchQuery => _searchQuery;
   String get selectedCategory => _selectedCategory;
@@ -71,32 +96,49 @@ class AppProvider with ChangeNotifier {
     // Already loaded mock data
   }
 
-  Future<void> joinEvent(String eventId) async {
-    if (!_joinedEventIds.contains(eventId)) {
-      _joinedEventIds.add(eventId);
+  Future<void> joinEvent(String eventId, String userId) async {
+    final joined = _joinedEventIdsByUser.putIfAbsent(userId, () => []);
+    if (!joined.contains(eventId)) {
+      joined.add(eventId);
       notifyListeners();
     }
   }
 
-  Future<void> leaveEvent(String eventId) async {
-    _joinedEventIds.remove(eventId);
+  Future<void> leaveEvent(String eventId, String userId) async {
+    _joinedEventIdsByUser[userId]?.remove(eventId);
     notifyListeners();
   }
 
-  Future<void> toggleBookmark(String eventId) async {
-    if (_bookmarkedEventIds.contains(eventId)) {
-      _bookmarkedEventIds.remove(eventId);
+  Future<void> toggleBookmark(String eventId, String userId) async {
+    final bookmarked = _bookmarkedEventIdsByUser.putIfAbsent(userId, () => []);
+    if (bookmarked.contains(eventId)) {
+      bookmarked.remove(eventId);
     } else {
-      _bookmarkedEventIds.add(eventId);
+      bookmarked.add(eventId);
     }
     notifyListeners();
   }
 
-  List<dynamic> getCommentsForEvent(String eventId) {
-    return _comments[eventId] ?? [];
+  List<MessageModel> getMessagesForEvent(String eventId) {
+    return _chatMessages[eventId] ?? [];
   }
 
-  Future<void> addComment(String eventId, String message, String userName) async {
+  Future<void> sendMessage(String eventId, String text, String userId, String userName) async {
+    final message = MessageModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      eventId: eventId,
+      userId: userId,
+      userName: userName,
+      text: text,
+      timestamp: DateTime.now(),
+    );
+
+    if (_chatMessages.containsKey(eventId)) {
+      _chatMessages[eventId]!.add(message);
+    } else {
+      _chatMessages[eventId] = [message];
+    }
+    notifyListeners();
   }
 
   Future<bool> createOpportunity({
