@@ -8,6 +8,8 @@ import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/app_provider.dart';
 
+import 'features/auth/presentation/welcome_screen.dart';
+
 void main() => runApp(
       DevicePreview(
         enabled: !kReleaseMode && (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)),
@@ -31,7 +33,13 @@ class MyApp extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       title: 'ALU Connect',
       theme: AppTheme.lightTheme,
-      home: const MainPlaceholder(),
+      home: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          return authProvider.isAuthenticated
+              ? const MainPlaceholder()
+              : const WelcomeScreen();
+        },
+      ),
     );
   }
 }
