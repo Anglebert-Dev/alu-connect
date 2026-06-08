@@ -1,6 +1,8 @@
 class AppConstants {
-  // App Name
+  // App Name & Logo
   static const String appName = 'ALU Connect';
+  static const String logoAsset = 'assets/images/ALU.png';
+  static const String logoFallbackAsset = 'assets/images/alu-logo.png';
 
   // Spacing & Layout
   static const double paddingSmall = 8.0;

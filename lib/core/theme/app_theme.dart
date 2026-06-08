@@ -20,7 +20,7 @@ class AppTheme {
       ),
 
       // Card styling: 12-16px rounded corners, soft shadows
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardBackground,
         elevation: 2.0,
         shadowColor: Colors.black.withOpacity(0.05),
