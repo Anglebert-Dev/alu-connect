@@ -101,12 +101,19 @@ class ProfileScreen extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatCard(
-                    context,
-                    title: 'Joined Events',
-                    value: appProvider.joinedEventIdsForUser(user.id).length.toString(),
-                    icon: Icons.event_available,
-                  ),
+                  child: user.role.toLowerCase() == 'organizer'
+                      ? _buildStatCard(
+                          context,
+                          title: 'Created',
+                          value: appProvider.createdOpportunitiesCount(user.id).toString(),
+                          icon: Icons.add_circle_outline,
+                        )
+                      : _buildStatCard(
+                          context,
+                          title: 'Joined Events',
+                          value: appProvider.joinedEventIdsForUser(user.id).length.toString(),
+                          icon: Icons.event_available,
+                        ),
                 ),
                 const SizedBox(width: AppConstants.paddingDefault),
                 Expanded(

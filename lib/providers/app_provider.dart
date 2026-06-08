@@ -13,6 +13,7 @@ class AppProvider with ChangeNotifier {
       title: 'Global Hackathon 2026',
       description: 'Join the biggest tech hackathon at ALU and win amazing prizes.',
       organizerId: 'organizer_1',
+      organizerName: 'Jane Organizer',
       date: DateTime.now().add(const Duration(days: 5)),
       location: 'Innovation Hub',
       category: 'Hackathons',
@@ -23,6 +24,7 @@ class AppProvider with ChangeNotifier {
       title: 'Leadership Workshop',
       description: 'Develop your leadership skills with industry experts.',
       organizerId: 'organizer_1',
+      organizerName: 'Jane Organizer',
       date: DateTime.now().add(const Duration(days: 10)),
       location: 'Main Auditorium',
       category: 'Leadership Programs',
@@ -33,16 +35,23 @@ class AppProvider with ChangeNotifier {
       title: 'Startup Pitch Night',
       description: 'Pitch your ideas to top investors.',
       organizerId: 'organizer_1',
+      organizerName: 'Jane Organizer',
       date: DateTime.now().add(const Duration(days: 14)),
       location: 'Venture Studio',
       category: 'Startup Events',
       createdAt: DateTime.now().subtract(const Duration(days: 5)),
     ),
   ];
-  
-  // Scoped per userId so each account has its own RSVP and saved state.
+
   final Map<String, List<String>> _joinedEventIdsByUser = {};
   final Map<String, List<String>> _bookmarkedEventIdsByUser = {};
+  final Map<String, List<Map<String, String>>> _participantsByEvent = {
+    'event_1': [
+      {'id': 'user_2', 'name': 'Alex Johnson'},
+      {'id': 'user_3', 'name': 'Samantha Lee'},
+    ],
+  };
+
   final Map<String, List<MessageModel>> _chatMessages = {
     'event_1': [
       MessageModel(
@@ -61,7 +70,7 @@ class AppProvider with ChangeNotifier {
         text: 'Yes! We need a frontend developer.',
         timestamp: DateTime.now().subtract(const Duration(hours: 1)),
       ),
-    ]
+    ],
   };
 
   final Map<String, List<CommentModel>> _comments = {
@@ -96,20 +105,17 @@ class AppProvider with ChangeNotifier {
   };
 
   List<EventModel> get opportunities => _opportunities;
-
-  List<String> joinedEventIdsForUser(String userId) =>
-      _joinedEventIdsByUser[userId] ?? [];
-
-  List<String> bookmarkedEventIdsForUser(String userId) =>
-      _bookmarkedEventIdsByUser[userId] ?? [];
-  
+  List<String> joinedEventIdsForUser(String userId) => _joinedEventIdsByUser[userId] ?? [];
+  List<String> bookmarkedEventIdsForUser(String userId) => _bookmarkedEventIdsByUser[userId] ?? [];
   String get searchQuery => _searchQuery;
   String get selectedCategory => _selectedCategory;
 
   List<EventModel> get filteredEvents {
     return _opportunities.where((event) {
-      final matchesCategory = _selectedCategory == 'All' || event.category == _selectedCategory;
-      final matchesSearch = event.title.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesCategory =
+          _selectedCategory == 'All' || event.category == _selectedCategory;
+      final matchesSearch =
+          event.title.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     }).toList();
   }
@@ -124,20 +130,23 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchOpportunities() async {
-    // Already loaded mock data
-  }
+  Future<void> fetchOpportunities() async {}
 
-  Future<void> joinEvent(String eventId, String userId) async {
+  Future<void> joinEvent(String eventId, String userId, String userName) async {
     final joined = _joinedEventIdsByUser.putIfAbsent(userId, () => []);
     if (!joined.contains(eventId)) {
       joined.add(eventId);
+      final participants = _participantsByEvent.putIfAbsent(eventId, () => []);
+      if (!participants.any((p) => p['id'] == userId)) {
+        participants.add({'id': userId, 'name': userName});
+      }
       notifyListeners();
     }
   }
 
   Future<void> leaveEvent(String eventId, String userId) async {
     _joinedEventIdsByUser[userId]?.remove(eventId);
+    _participantsByEvent[eventId]?.removeWhere((p) => p['id'] == userId);
     notifyListeners();
   }
 
@@ -151,11 +160,18 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  List<Map<String, String>> getParticipantsForEvent(String eventId) =>
+      _participantsByEvent[eventId] ?? [];
+
+  int createdOpportunitiesCount(String userId) =>
+      _opportunities.where((e) => e.organizerId == userId).length;
+
   List<MessageModel> getMessagesForEvent(String eventId) {
     return _chatMessages[eventId] ?? [];
   }
 
-  Future<void> sendMessage(String eventId, String text, String userId, String userName) async {
+  Future<void> sendMessage(
+      String eventId, String text, String userId, String userName) async {
     final message = MessageModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       eventId: eventId,
@@ -164,12 +180,7 @@ class AppProvider with ChangeNotifier {
       text: text,
       timestamp: DateTime.now(),
     );
-
-    if (_chatMessages.containsKey(eventId)) {
-      _chatMessages[eventId]!.add(message);
-    } else {
-      _chatMessages[eventId] = [message];
-    }
+    _chatMessages.putIfAbsent(eventId, () => []).add(message);
     notifyListeners();
   }
 
@@ -177,7 +188,8 @@ class AppProvider with ChangeNotifier {
     return _comments[eventId] ?? [];
   }
 
-  void addComment(String eventId, String text, String userId, String userName) {
+  void addComment(
+      String eventId, String text, String userId, String userName) {
     final comment = CommentModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       eventId: eventId,
@@ -190,7 +202,8 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void addReply(String eventId, String commentId, String text, String userId, String userName) {
+  void addReply(String eventId, String commentId, String text, String userId,
+      String userName) {
     final comments = _comments[eventId];
     if (comments == null) return;
     final index = comments.indexWhere((c) => c.id == commentId);
@@ -211,9 +224,24 @@ class AppProvider with ChangeNotifier {
     required String title,
     required String description,
     required String category,
-    required String date,
+    required DateTime date,
     required String location,
+    required String organizerId,
+    required String organizerName,
   }) async {
-    return false;
+    final event = EventModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      description: description,
+      organizerId: organizerId,
+      organizerName: organizerName,
+      date: date,
+      location: location,
+      category: category,
+      createdAt: DateTime.now(),
+    );
+    _opportunities.insert(0, event);
+    notifyListeners();
+    return true;
   }
 }
