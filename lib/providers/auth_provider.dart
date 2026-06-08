@@ -11,14 +11,14 @@ class AuthProvider with ChangeNotifier {
     const UserModel(
       id: 'student_1',
       fullName: 'John Student',
-      email: 'student@alu.edu',
+      email: 'student@alu.com',
       password: 'password123',
       role: 'Student',
     ),
     const UserModel(
       id: 'organizer_1',
       fullName: 'Jane Organizer',
-      email: 'organizer@alu.edu',
+      email: 'organizer@alu.com',
       password: 'password123',
       role: 'Organizer',
     ),
@@ -115,5 +115,26 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final sessionString = json.encode(user.toJson());
     await prefs.setString('user_session', sessionString);
+  }
+
+  Future<void> updateProfile({required String name, required String role}) async {
+    if (_currentUser == null) return;
+
+    final updatedUser = UserModel(
+      id: _currentUser!.id,
+      fullName: name.trim(),
+      email: _currentUser!.email,
+      password: _currentUser!.password,
+      role: role,
+    );
+
+    final index = _users.indexWhere((u) => u.id == updatedUser.id);
+    if (index != -1) {
+      _users[index] = updatedUser;
+    }
+
+    _currentUser = updatedUser;
+    await _saveSession(updatedUser);
+    notifyListeners();
   }
 }

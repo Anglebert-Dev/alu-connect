@@ -9,19 +9,27 @@ import 'providers/auth_provider.dart';
 import 'providers/app_provider.dart';
 
 import 'features/auth/presentation/welcome_screen.dart';
+import 'core/widgets/main_scaffold.dart';
 
-void main() => runApp(
-      DevicePreview(
-        enabled: !kReleaseMode && (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)),
-        builder: (context) => MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => AuthProvider()),
-            ChangeNotifierProvider(create: (_) => AppProvider()),
-          ],
-          child: const MyApp(),
-        ),
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final authProvider = AuthProvider();
+  await authProvider.checkSession();
+
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode && (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)),
+      builder: (context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: authProvider),
+          ChangeNotifierProvider(create: (_) => AppProvider()),
+        ],
+        child: const MyApp(),
       ),
-    );
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -36,25 +44,9 @@ class MyApp extends StatelessWidget {
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
           return authProvider.isAuthenticated
-              ? const MainPlaceholder()
+              ? const MainScaffold()
               : const WelcomeScreen();
         },
-      ),
-    );
-  }
-}
-
-class MainPlaceholder extends StatelessWidget {
-  const MainPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          'ALU Connect Scaffold',
-          style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-        ),
       ),
     );
   }

@@ -22,6 +22,8 @@ class WelcomeScreen extends StatelessWidget {
                 AppConstants.logoAsset,
                 height: 120.0,
                 fit: BoxFit.contain,
+                color: Theme.of(context).primaryColor,
+                colorBlendMode: BlendMode.srcIn,
                 errorBuilder: (context, error, stackTrace) {
                   // Fallback logo if image asset is not loaded
                   return Container(
