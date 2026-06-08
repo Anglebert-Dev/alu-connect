@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../models/event_model.dart';
+import 'event_card_header.dart';
 
 class EventCard extends StatelessWidget {
   final EventModel event;
@@ -37,57 +38,7 @@ class EventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 100,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppConstants.cardRadius)),
-                gradient: LinearGradient(
-                  colors: [
-                    categoryColor,
-                    categoryColor.withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: -20,
-                    top: -20,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 16,
-                    bottom: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-                      ),
-                      child: Text(
-                        event.category,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
+            EventCardHeader(category: event.category, categoryColor: categoryColor),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -95,22 +46,14 @@ class EventCard extends StatelessWidget {
                 children: [
                   Text(
                     event.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     event.description,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -122,11 +65,7 @@ class EventCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           formattedDate,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: categoryColor,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontSize: 12, color: categoryColor, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -139,10 +78,7 @@ class EventCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           event.location,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
