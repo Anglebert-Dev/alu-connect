@@ -16,4 +16,26 @@ class CommentModel {
     required this.timestamp,
     List<CommentModel>? replies,
   }) : replies = replies ?? [];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'eventId': eventId,
+        'userId': userId,
+        'userName': userName,
+        'text': text,
+        'timestamp': timestamp.toIso8601String(),
+        'replies': replies.map((r) => r.toJson()).toList(),
+      };
+
+  factory CommentModel.fromJson(Map<String, dynamic> json) => CommentModel(
+        id: json['id'] as String,
+        eventId: json['eventId'] as String,
+        userId: json['userId'] as String,
+        userName: json['userName'] as String,
+        text: json['text'] as String,
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        replies: (json['replies'] as List? ?? [])
+            .map((r) => CommentModel.fromJson(r as Map<String, dynamic>))
+            .toList(),
+      );
 }
