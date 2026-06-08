@@ -4,6 +4,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../providers/app_provider.dart';
+import '../../../providers/auth_provider.dart';
 import 'event_details_screen.dart';
 import 'widgets/event_card.dart';
 
@@ -13,8 +14,10 @@ class MyEventsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
+    final userId = context.watch<AuthProvider>().currentUser?.id ?? '';
+    final joinedIds = appProvider.joinedEventIdsForUser(userId);
     final joinedEvents = appProvider.opportunities
-        .where((event) => appProvider.joinedEventIds.contains(event.id))
+        .where((event) => joinedIds.contains(event.id))
         .toList();
 
     return Scaffold(
