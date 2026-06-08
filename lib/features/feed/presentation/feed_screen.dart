@@ -4,6 +4,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../providers/app_provider.dart';
+import '../../events/presentation/event_details_screen.dart';
 import '../../events/presentation/widgets/event_card.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -106,7 +107,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
           Expanded(
             child: events.isEmpty
-                ? const Center(
+                ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -139,6 +140,12 @@ class _FeedScreenState extends State<FeedScreen> {
                       return EventCard(
                         event: events[index],
                         onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EventDetailsScreen(event: events[index]),
+                            ),
+                          );
                         },
                       );
                     },
