@@ -45,12 +45,15 @@ class CommentTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        comment.userName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: AppColors.textPrimary,
+                      Flexible(
+                        child: Text(
+                          comment.userName,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
