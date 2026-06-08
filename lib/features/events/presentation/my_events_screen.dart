@@ -1,27 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_app_bar.dart';
+import '../../../providers/app_provider.dart';
+import 'event_details_screen.dart';
+import 'widgets/event_card.dart';
 
 class MyEventsScreen extends StatelessWidget {
   const MyEventsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final appProvider = context.watch<AppProvider>();
+    final joinedEvents = appProvider.opportunities
+        .where((event) => appProvider.joinedEventIds.contains(event.id))
+        .toList();
+
     return Scaffold(
       appBar: const CustomAppBar(title: 'My Events', showBackButton: false),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.event_outlined,
-              size: 64,
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+      backgroundColor: AppColors.surface,
+      body: joinedEvents.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.event_busy_outlined,
+                    size: 64,
+                    color: AppColors.textLight,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No joined events yet',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'RSVP to an opportunity to see it here',
+                    style: TextStyle(color: AppColors.textLight, fontSize: 13),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(AppConstants.paddingDefault),
+              itemCount: joinedEvents.length,
+              itemBuilder: (context, index) {
+                return EventCard(
+                  event: joinedEvents[index],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventDetailsScreen(event: joinedEvents[index]),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            const SizedBox(height: 16),
-            const Text('Joined events will appear here'),
-          ],
-        ),
-      ),
     );
   }
 }

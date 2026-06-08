@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../providers/app_provider.dart';
@@ -17,14 +18,32 @@ class EventDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final appProvider = context.watch<AppProvider>();
     final isJoined = appProvider.joinedEventIds.contains(event.id);
+    final isSaved = appProvider.bookmarkedEventIds.contains(event.id);
     final categoryColor = AppColors.categoryColors[event.category] ?? AppColors.primary;
     final formattedDate = DateFormat('EEEE, MMMM d, y • h:mm a').format(event.date);
 
-    final int baseCount = event.id.hashCode.abs() % 50 + 10;
-    final int participantCount = baseCount + (isJoined ? 1 : 0);
-
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Opportunity Details', showBackButton: true),
+      appBar: CustomAppBar(
+        title: 'Opportunity Details',
+        showBackButton: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              isSaved ? Icons.bookmark : Icons.bookmark_border,
+              color: isSaved ? AppColors.primary : AppColors.textSecondary,
+            ),
+            onPressed: () {
+              context.read<AppProvider>().toggleBookmark(event.id);
+              AppToast.show(
+                context,
+                message: isSaved ? 'Removed from saved events' : 'Event saved successfully',
+                type: ToastType.success,
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
@@ -72,12 +91,6 @@ class EventDetailsScreen extends StatelessWidget {
                     text: event.location,
                     color: AppColors.textPrimary,
                   ),
-                  const SizedBox(height: 12),
-                  _buildInfoRow(
-                    icon: Icons.people_outline,
-                    text: '$participantCount students attending',
-                    color: AppColors.primary,
-                  ),
 
                   const SizedBox(height: AppConstants.paddingLarge),
                   const Divider(),
@@ -104,8 +117,18 @@ class EventDetailsScreen extends StatelessWidget {
                     onPressed: () {
                       if (isJoined) {
                         context.read<AppProvider>().leaveEvent(event.id);
+                        AppToast.show(
+                          context,
+                          message: 'You have left this event',
+                          type: ToastType.success,
+                        );
                       } else {
                         context.read<AppProvider>().joinEvent(event.id);
+                        AppToast.show(
+                          context,
+                          message: 'Successfully joined event!',
+                          type: ToastType.success,
+                        );
                       }
                     },
                   ),
