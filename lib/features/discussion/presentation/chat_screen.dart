@@ -57,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final messages = appProvider.getMessagesForEvent(widget.event.id);
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Live Chat', showBackButton: true),
+      appBar: const CustomAppBar(title: 'Live Chat', showBackButton: true),
       backgroundColor: AppColors.background,
       body: Column(
         children: [

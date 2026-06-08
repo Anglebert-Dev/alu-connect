@@ -9,6 +9,7 @@ import '../../../core/widgets/custom_button.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../discussion/presentation/chat_screen.dart';
+import '../../discussion/presentation/widgets/comments_section.dart';
 import '../models/event_model.dart';
 
 class EventDetailsScreen extends StatelessWidget {
@@ -136,6 +137,16 @@ class EventDetailsScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: AppConstants.paddingLarge),
+
+                  const Divider(),
+                  const SizedBox(height: AppConstants.paddingDefault),
+                  Text(
+                    'Comments',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: AppConstants.paddingDefault),
+                  CommentsSection(eventId: event.id),
+                  const SizedBox(height: AppConstants.paddingLarge * 4),
                 ],
               ),
             ),
@@ -178,7 +189,7 @@ class EventDetailsScreen extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: AppColors.textPrimary,

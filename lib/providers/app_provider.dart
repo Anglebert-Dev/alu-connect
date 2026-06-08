@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../features/discussion/models/comment_model.dart';
 import '../features/discussion/models/message_model.dart';
 import '../features/events/models/event_model.dart';
 
@@ -61,6 +62,37 @@ class AppProvider with ChangeNotifier {
         timestamp: DateTime.now().subtract(const Duration(hours: 1)),
       ),
     ]
+  };
+
+  final Map<String, List<CommentModel>> _comments = {
+    'event_2': [
+      CommentModel(
+        id: 'comment_1',
+        eventId: 'event_2',
+        userId: 'user_4',
+        userName: 'Maria Santos',
+        text: 'Will there be any recorded sessions for those who cannot attend?',
+        timestamp: DateTime.now().subtract(const Duration(hours: 5)),
+        replies: [
+          CommentModel(
+            id: 'reply_1',
+            eventId: 'event_2',
+            userId: 'organizer_1',
+            userName: 'Jane Organizer',
+            text: 'Yes! All sessions will be recorded and shared afterward.',
+            timestamp: DateTime.now().subtract(const Duration(hours: 4)),
+          ),
+        ],
+      ),
+      CommentModel(
+        id: 'comment_2',
+        eventId: 'event_2',
+        userId: 'user_5',
+        userName: 'David Kim',
+        text: 'What should we bring to the workshop?',
+        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+      ),
+    ],
   };
 
   List<EventModel> get opportunities => _opportunities;
@@ -138,6 +170,40 @@ class AppProvider with ChangeNotifier {
     } else {
       _chatMessages[eventId] = [message];
     }
+    notifyListeners();
+  }
+
+  List<CommentModel> getCommentsForEvent(String eventId) {
+    return _comments[eventId] ?? [];
+  }
+
+  void addComment(String eventId, String text, String userId, String userName) {
+    final comment = CommentModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      eventId: eventId,
+      userId: userId,
+      userName: userName,
+      text: text,
+      timestamp: DateTime.now(),
+    );
+    _comments.putIfAbsent(eventId, () => []).insert(0, comment);
+    notifyListeners();
+  }
+
+  void addReply(String eventId, String commentId, String text, String userId, String userName) {
+    final comments = _comments[eventId];
+    if (comments == null) return;
+    final index = comments.indexWhere((c) => c.id == commentId);
+    if (index == -1) return;
+    final reply = CommentModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      eventId: eventId,
+      userId: userId,
+      userName: userName,
+      text: text,
+      timestamp: DateTime.now(),
+    );
+    comments[index].replies.add(reply);
     notifyListeners();
   }
 
