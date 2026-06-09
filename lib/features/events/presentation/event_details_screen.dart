@@ -13,10 +13,17 @@ import '../models/event_model.dart';
 import 'widgets/event_info_section.dart';
 import 'widgets/participants_section.dart';
 
-class EventDetailsScreen extends StatelessWidget {
+class EventDetailsScreen extends StatefulWidget {
   final EventModel event;
 
   const EventDetailsScreen({super.key, required this.event});
+
+  @override
+  State<EventDetailsScreen> createState() => _EventDetailsScreenState();
+}
+
+class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  bool _isRsvpLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +31,10 @@ class EventDetailsScreen extends StatelessWidget {
     final user = context.watch<AuthProvider>().currentUser;
     final userId = user?.id ?? '';
     final userName = user?.fullName ?? '';
-    final isOrganizer = userId == event.organizerId;
-    final isJoined = appProvider.joinedEventIdsForUser(userId).contains(event.id);
-    final isSaved = appProvider.bookmarkedEventIdsForUser(userId).contains(event.id);
-    final participants = isOrganizer ? appProvider.getParticipantsForEvent(event.id) : <Map<String, String>>[];
+    final isOrganizer = userId == widget.event.organizerId;
+    final isJoined = appProvider.joinedEventIdsForUser(userId).contains(widget.event.id);
+    final isSaved = appProvider.bookmarkedEventIdsForUser(userId).contains(widget.event.id);
+    final participants = isOrganizer ? appProvider.getParticipantsForEvent(widget.event.id) : <Map<String, String>>[];
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -40,7 +47,7 @@ class EventDetailsScreen extends StatelessWidget {
               color: isSaved ? AppColors.primary : AppColors.textSecondary,
             ),
             onPressed: () {
-              context.read<AppProvider>().toggleBookmark(event.id, userId);
+              context.read<AppProvider>().toggleBookmark(widget.event.id, userId);
               AppToast.show(
                 context,
                 message: isSaved ? 'Removed from saved events' : 'Event saved successfully',
@@ -57,7 +64,7 @@ class EventDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            EventInfoSection(event: event),
+            EventInfoSection(event: widget.event),
             const SizedBox(height: AppConstants.paddingLarge * 2),
             if (isOrganizer)
               ParticipantsSection(participants: participants)
@@ -65,22 +72,27 @@ class EventDetailsScreen extends StatelessWidget {
               CustomButton(
                 text: isJoined ? 'Leave Event' : 'RSVP Now',
                 isPrimary: !isJoined,
-                onPressed: () {
-                  if (isJoined) {
-                    context.read<AppProvider>().leaveEvent(event.id, userId);
-                    AppToast.show(context, message: 'You have left this event', type: ToastType.success);
-                  } else {
-                    context.read<AppProvider>().joinEvent(event.id, userId, userName);
-                    AppToast.show(context, message: 'Successfully joined event!', type: ToastType.success);
-                  }
-                },
+                isLoading: _isRsvpLoading,
+                onPressed: _isRsvpLoading
+                    ? null
+                    : () async {
+                        setState(() => _isRsvpLoading = true);
+                        if (isJoined) {
+                          await context.read<AppProvider>().leaveEvent(widget.event.id, userId);
+                          if (context.mounted) AppToast.show(context, message: 'You have left this event', type: ToastType.success);
+                        } else {
+                          await context.read<AppProvider>().joinEvent(widget.event.id, userId, userName);
+                          if (context.mounted) AppToast.show(context, message: 'Successfully joined event!', type: ToastType.success);
+                        }
+                        if (mounted) setState(() => _isRsvpLoading = false);
+                      },
               ),
             const SizedBox(height: AppConstants.paddingLarge),
             const Divider(),
             const SizedBox(height: AppConstants.paddingDefault),
             Text('Comments', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppConstants.paddingDefault),
-            CommentsSection(eventId: event.id),
+            CommentsSection(eventId: widget.event.id),
             const SizedBox(height: AppConstants.paddingLarge * 4),
           ],
         ),
@@ -90,7 +102,7 @@ class EventDetailsScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ChatScreen(event: event)),
+                  MaterialPageRoute(builder: (context) => ChatScreen(event: widget.event)),
                 );
               },
               backgroundColor: AppColors.primary,

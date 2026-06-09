@@ -3,12 +3,14 @@ import '../../../../core/theme/app_colors.dart';
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final VoidCallback onSend;
 
   const ChatInputBar({
     super.key,
     required this.controller,
     required this.onSend,
+    this.focusNode,
   });
 
   @override
@@ -37,6 +39,7 @@ class ChatInputBar extends StatelessWidget {
                 ),
                 child: TextField(
                   controller: controller,
+                  focusNode: focusNode,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => onSend(),
                   decoration: const InputDecoration(

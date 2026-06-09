@@ -21,6 +21,27 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _inputFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _inputFocusNode.addListener(_onInputFocus);
+  }
+
+  void _onInputFocus() {
+    if (_inputFocusNode.hasFocus) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
 
   void _sendMessage() {
     final text = _messageController.text.trim();
@@ -45,6 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _inputFocusNode.dispose();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -67,11 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
             width: double.infinity,
             child: Text(
               widget.event.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-                fontSize: 13,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary, fontSize: 13),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -87,17 +105,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         SizedBox(height: 16),
                         Text(
                           'No messages yet',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 16, fontWeight: FontWeight.w500),
                         ),
                         SizedBox(height: 8),
-                        Text(
-                          'Say hi to other attendees!',
-                          style: TextStyle(color: AppColors.textLight, fontSize: 13),
-                        ),
+                        Text('Say hi to other attendees!', style: TextStyle(color: AppColors.textLight, fontSize: 13)),
                       ],
                     ),
                   )
@@ -105,17 +116,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _scrollController,
                     padding: const EdgeInsets.all(AppConstants.paddingDefault),
                     itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      return ChatBubble(
-                        message: message,
-                        isMe: message.userId == currentUserId,
-                      );
-                    },
+                    itemBuilder: (context, index) => ChatBubble(
+                      message: messages[index],
+                      isMe: messages[index].userId == currentUserId,
+                    ),
                   ),
           ),
           ChatInputBar(
             controller: _messageController,
+            focusNode: _inputFocusNode,
             onSend: _sendMessage,
           ),
         ],

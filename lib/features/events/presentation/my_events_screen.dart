@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_app_bar.dart';
+import '../../../core/widgets/fade_in_item.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/auth_provider.dart';
 import 'event_details_screen.dart';
@@ -54,16 +55,19 @@ class MyEventsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(AppConstants.paddingDefault),
               itemCount: joinedEvents.length,
               itemBuilder: (context, index) {
-                return EventCard(
-                  event: joinedEvents[index],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EventDetailsScreen(event: joinedEvents[index]),
-                      ),
-                    );
-                  },
+                return FadeInItem(
+                  index: index,
+                  child: EventCard(
+                    event: joinedEvents[index],
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventDetailsScreen(event: joinedEvents[index]),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),

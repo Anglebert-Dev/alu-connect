@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../providers/app_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../models/comment_model.dart';
+import 'comment_input_bar.dart';
 import 'comment_tile.dart';
 
 class CommentsSection extends StatefulWidget {
@@ -17,6 +18,7 @@ class CommentsSection extends StatefulWidget {
 
 class _CommentsSectionState extends State<CommentsSection> {
   final TextEditingController _commentController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   CommentModel? _replyingTo;
 
   void _submitComment() {
@@ -27,15 +29,8 @@ class _CommentsSectionState extends State<CommentsSection> {
     if (user == null) return;
 
     final appProvider = context.read<AppProvider>();
-
     if (_replyingTo != null) {
-      appProvider.addReply(
-        widget.eventId,
-        _replyingTo!.id,
-        text,
-        user.id,
-        user.fullName,
-      );
+      appProvider.addReply(widget.eventId, _replyingTo!.id, text, user.id, user.fullName);
     } else {
       appProvider.addComment(widget.eventId, text, user.id, user.fullName);
     }
@@ -46,6 +41,7 @@ class _CommentsSectionState extends State<CommentsSection> {
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _commentController.dispose();
     super.dispose();
   }
@@ -79,60 +75,12 @@ class _CommentsSectionState extends State<CommentsSection> {
             ),
           ),
         const SizedBox(height: 16),
-        if (_replyingTo != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              children: [
-                Text(
-                  'Replying to ${_replyingTo!.userName}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () => setState(() => _replyingTo = null),
-                  child: const Icon(Icons.close, size: 16, color: AppColors.textLight),
-                ),
-              ],
-            ),
-          ),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: TextField(
-                  controller: _commentController,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _submitComment(),
-                  decoration: InputDecoration(
-                    hintText: _replyingTo != null ? 'Write a reply...' : 'Add a comment...',
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
-                onPressed: _submitComment,
-              ),
-            ),
-          ],
+        CommentInputBar(
+          controller: _commentController,
+          focusNode: _focusNode,
+          replyingToName: _replyingTo?.userName,
+          onSubmit: _submitComment,
+          onCancelReply: () => setState(() => _replyingTo = null),
         ),
       ],
     );

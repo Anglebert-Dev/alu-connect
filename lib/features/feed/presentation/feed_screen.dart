@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_app_bar.dart';
+import '../../../core/widgets/fade_in_item.dart';
 import '../../../providers/app_provider.dart';
 import '../../events/presentation/event_details_screen.dart';
 import '../../events/presentation/widgets/event_card.dart';
@@ -59,16 +60,19 @@ class _FeedScreenState extends State<FeedScreen> {
                     padding: const EdgeInsets.all(AppConstants.paddingDefault),
                     itemCount: events.length,
                     itemBuilder: (context, index) {
-                      return EventCard(
-                        event: events[index],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EventDetailsScreen(event: events[index]),
-                            ),
-                          );
-                        },
+                      return FadeInItem(
+                        index: index,
+                        child: EventCard(
+                          event: events[index],
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EventDetailsScreen(event: events[index]),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
