@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
@@ -11,11 +12,9 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
-        background: AppColors.background,
         surface: AppColors.surface,
         error: AppColors.error,
         onPrimary: AppColors.textOnPrimary,
-        onBackground: AppColors.textPrimary,
         onSurface: AppColors.textPrimary,
       ),
 
@@ -23,7 +22,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.cardBackground,
         elevation: 2.0,
-        shadowColor: Colors.black.withOpacity(0.05),
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
           side: const BorderSide(color: AppColors.border, width: 1.0),
@@ -149,6 +148,14 @@ class AppTheme {
         color: AppColors.border,
         thickness: 1.0,
         space: 24.0,
+      ),
+
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        },
       ),
     );
   }

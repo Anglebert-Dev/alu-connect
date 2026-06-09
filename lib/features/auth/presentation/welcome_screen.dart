@@ -25,12 +25,11 @@ class WelcomeScreen extends StatelessWidget {
                 color: Theme.of(context).primaryColor,
                 colorBlendMode: BlendMode.srcIn,
                 errorBuilder: (context, error, stackTrace) {
-                  // Fallback logo if image asset is not loaded
                   return Container(
                     height: 120.0,
                     width: 120.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -42,7 +41,6 @@ class WelcomeScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: AppConstants.paddingDefault),
-              // App Name below Logo
               Text(
                 AppConstants.appName,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -51,7 +49,6 @@ class WelcomeScreen extends StatelessWidget {
                     ),
               ),
               const Spacer(),
-              // Action buttons
               CustomButton(
                 text: 'Login',
                 onPressed: () {

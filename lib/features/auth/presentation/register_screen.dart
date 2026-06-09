@@ -5,6 +5,7 @@ import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../providers/auth_provider.dart';
+import 'widgets/role_selector.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -45,18 +46,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (mounted) {
       setState(() => _isLoading = false);
       if (success) {
-        AppToast.show(
-          context,
-          message: 'Account created! Welcome to ALU Connect.',
-          type: ToastType.success,
-        );
+        AppToast.show(context, message: 'Account created! Welcome to ALU Connect.', type: ToastType.success);
         Navigator.popUntil(context, (route) => route.isFirst);
       } else {
-        AppToast.show(
-          context,
-          message: 'Email is already registered. Please login.',
-          type: ToastType.error,
-        );
+        AppToast.show(context, message: 'Email is already registered. Please login.', type: ToastType.error);
       }
     }
   }
@@ -64,10 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-        elevation: 0.0,
-      ),
+      appBar: AppBar(title: const Text('Register'), elevation: 0.0),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.paddingLarge),
@@ -84,20 +74,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                 ),
                 const SizedBox(height: 8.0),
-                const Text(
-                  'Join the ALU Connect community to explore opportunities.',
-                ),
+                const Text('Join the ALU Connect community to explore opportunities.'),
                 const SizedBox(height: AppConstants.paddingLarge),
                 CustomTextField(
                   label: 'Full Name',
                   controller: _nameController,
                   hintText: 'e.g., John Doe',
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Full Name is required';
-                    }
-                    return null;
-                  },
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Full Name is required' : null,
                 ),
                 const SizedBox(height: AppConstants.paddingDefault),
                 CustomTextField(
@@ -106,13 +89,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: 'e.g., student@alu.edu',
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Email is required';
-                    }
-                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                    if (!emailRegex.hasMatch(value.trim())) {
-                      return 'Enter a valid email address';
-                    }
+                    if (value == null || value.trim().isEmpty) return 'Email is required';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value.trim())) return 'Enter a valid email address';
                     return null;
                   },
                 ),
@@ -123,48 +101,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   isPassword: true,
                   hintText: 'At least 6 characters',
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password is required';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
+                    if (value == null || value.isEmpty) return 'Password is required';
+                    if (value.length < 6) return 'Password must be at least 6 characters';
                     return null;
                   },
                 ),
                 const SizedBox(height: AppConstants.paddingDefault),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'I am a...',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    DropdownButtonFormField<String>(
-                      value: _selectedRole,
-                      decoration: const InputDecoration(),
-                      items: const [
-                        DropdownMenuItem(value: 'Student', child: Text('Student')),
-                        DropdownMenuItem(value: 'Organizer', child: Text('Organizer')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedRole = value);
-                        }
-                      },
-                    ),
-                  ],
+                RoleSelector(
+                  selectedRole: _selectedRole,
+                  onChanged: (v) { if (v != null) setState(() => _selectedRole = v); },
                 ),
                 const SizedBox(height: AppConstants.paddingLarge * 2),
-                CustomButton(
-                  text: 'Register',
-                  isLoading: _isLoading,
-                  onPressed: _handleRegister,
-                ),
+                CustomButton(text: 'Register', isLoading: _isLoading, onPressed: _handleRegister),
               ],
             ),
           ),
