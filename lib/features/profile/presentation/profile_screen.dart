@@ -6,6 +6,7 @@ import '../../../core/widgets/custom_button.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/auth_provider.dart';
 import 'edit_profile_screen.dart';
+import '../../../core/widgets/main_scaffold.dart';
 import 'widgets/profile_role_badge.dart';
 import 'widgets/profile_stat_card.dart';
 
@@ -74,18 +75,24 @@ class ProfileScreen extends StatelessWidget {
                           value: appProvider.createdOpportunitiesCount(user.id).toString(),
                           icon: Icons.add_circle_outline,
                         )
-                      : ProfileStatCard(
-                          title: 'Joined Events',
-                          value: appProvider.joinedEventIdsForUser(user.id).length.toString(),
-                          icon: Icons.event_available,
+                      : GestureDetector(
+                          onTap: () => mainScaffoldKey.currentState?.switchTab(1),
+                          child: ProfileStatCard(
+                            title: 'Joined Events',
+                            value: appProvider.joinedEventIdsForUser(user.id).length.toString(),
+                            icon: Icons.event_available,
+                          ),
                         ),
                 ),
                 const SizedBox(width: AppConstants.paddingDefault),
                 Expanded(
-                  child: ProfileStatCard(
-                    title: 'Saved',
-                    value: appProvider.bookmarkedEventIdsForUser(user.id).length.toString(),
-                    icon: Icons.bookmark,
+                  child: GestureDetector(
+                    onTap: () => mainScaffoldKey.currentState?.switchTab(2),
+                    child: ProfileStatCard(
+                      title: 'Saved',
+                      value: appProvider.bookmarkedEventIdsForUser(user.id).length.toString(),
+                      icon: Icons.bookmark,
+                    ),
                   ),
                 ),
               ],
